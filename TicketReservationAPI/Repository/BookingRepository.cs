@@ -24,6 +24,9 @@ namespace TicketReservationAPI.Repository
                 return false;
 
             eventDetails.AvailableSeats -= booking.NumberOfTickets;
+
+            booking.BookingReference= $"BK-{new Random().Next(100000, 999999)}";
+            booking.BookingDate = DateTime.Now;
             await _context.Bookings.AddAsync(booking);
             await _eventRepository.UpdateEventAsync(eventDetails);
            // var result = await _context.SaveChangesAsync();
@@ -36,7 +39,8 @@ namespace TicketReservationAPI.Repository
             if (booking != null)
             {
                 _context.Bookings.Remove(booking);
-                return await _context.SaveChangesAsync() > 0;
+                //return await _context.SaveChangesAsync() > 0;
+                return true;
             }
             return false;
         }
