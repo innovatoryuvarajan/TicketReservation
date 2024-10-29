@@ -1,6 +1,8 @@
 
 using Microsoft.EntityFrameworkCore;
 using TicketReservationAPI.Data;
+using TicketReservationAPI.Repository;
+using TicketReservationAPI.Repository.IRepository;
 
 namespace TicketReservationAPI
 {
@@ -20,6 +22,10 @@ namespace TicketReservationAPI
             option.UseSqlServer(builder.Configuration.GetConnectionString("Ticketconnection")));
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+
+            builder.Services.AddScoped<IBookingRepository,BookingRepository>();
+            builder.Services.AddScoped<IEventRepository,EventRepository>();
 
             builder.Services.AddCors(options=>
             {

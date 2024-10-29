@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using TicketReservationAPI.Models;
 using TicketReservationAPI.Repository.IRepository;
+using System.Threading.Tasks;
 
 namespace TicketReservationAPI.Controllers
 {
@@ -9,45 +9,43 @@ namespace TicketReservationAPI.Controllers
     [ApiController]
     public class EventController : ControllerBase
     {
-
         private readonly IEventRepository _eventRepository;
+
         public EventController(IEventRepository eventRepository)
         {
             _eventRepository = eventRepository;
         }
 
-        [HttpPost]
+        [HttpPost("Add")]
         public async Task<IActionResult> AddEvent([FromBody] Event eventDetails)
         {
             var result = await _eventRepository.AddEventAsync(eventDetails);
             return result ? Ok("Event added successfully") : BadRequest("Failed to add event");
         }
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateResult(int id, [FromBody] Event eventdetails)
-        {
-            eventdetails.Id = id;
-            var result = await _eventRepository.UpdateEventAsync(eventdetails);
-            return result ? Ok("Event Updated Successfully") : NotFound("Event not Found");
 
+        [HttpPut("Edit/{id}")]
+        public async Task<IActionResult> UpdateEvent(int id, [FromBody] Event eventDetails)
+        {
+            eventDetails.Id = id;
+            var result = await _eventRepository.UpdateEventAsync(eventDetails);
+            return result ? Ok("Event updated successfully") : NotFound("Event not found");
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("Delete/{id}")]
         public async Task<IActionResult> DeleteEvent(int id)
         {
-            var result=await _eventRepository.DeleteEventAsync(id);
-            return result ? Ok("Event Deleted Successfully") : NotFound("Event not found");
-
+            var result = await _eventRepository.DeleteEventAsync(id);
+            return result ? Ok("Event deleted successfully") : NotFound("Event not found");
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("Get/{id}")]
         public async Task<IActionResult> GetEvent(int id)
         {
             var eventDetails = await _eventRepository.GetEventByIdAsync(id);
             return eventDetails != null ? Ok(eventDetails) : NotFound("Event not found");
-
         }
 
-        [HttpGet]
+        [HttpGet("GetAll")]
         public async Task<IActionResult> GetAllEvents()
         {
             var events = await _eventRepository.GetAllEventsAsync();

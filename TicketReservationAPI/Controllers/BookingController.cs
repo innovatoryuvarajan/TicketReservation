@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using TicketReservationAPI.Models;
 using TicketReservationAPI.Repository.IRepository;
+using System.Threading.Tasks;
 
 namespace TicketReservationAPI.Controllers
 {
@@ -9,10 +9,8 @@ namespace TicketReservationAPI.Controllers
     [ApiController]
     public class BookingController : ControllerBase
     {
-
         private readonly IBookingRepository _bookingRepository;
-
-        public readonly IEventRepository _eventRepository;
+        private readonly IEventRepository _eventRepository;
 
         public BookingController(IBookingRepository bookingRepository, IEventRepository eventRepository)
         {
@@ -20,53 +18,52 @@ namespace TicketReservationAPI.Controllers
             _eventRepository = eventRepository;
         }
 
-        [HttpPost]
+        [HttpPost("Book")]
         public async Task<IActionResult> BookTickets([FromBody] Booking booking)
         {
             var eventDetails = await _eventRepository.GetEventByIdAsync(booking.EventId);
             if (eventDetails == null || eventDetails.AvailableSeats < booking.NumberOfTickets)
                 return BadRequest("Not enough seats available or event not found");
+
             eventDetails.AvailableSeats -= booking.NumberOfTickets;
             var bookingSuccess = await _bookingRepository.AddBookingAsync(booking);
             var eventUpdateSuccess = await _eventRepository.UpdateEventAsync(eventDetails);
 
-            return bookingSuccess && eventUpdateSuccess ? Ok("Booking Successful") : BadRequest("Failed to book tickets");
+            Console.WriteLine(bookingSuccess+"==>"+ eventUpdateSuccess);
+            Console.WriteLine(eventDetails);
+            return bookingSuccess && eventUpdateSuccess ? Ok("Booking successful") : BadRequest("Failed to book tickets");
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("Cancel/{id}")]
         public async Task<IActionResult> CancelBooking(int id)
         {
             var booking = await _bookingRepository.GetBookingByIdAsync(id);
             if (booking == null)
                 return NotFound("Booking not found");
-            var eventDetails = await _eventRepository.GetEventByIdAsync(booking.EventId);
 
+            var eventDetails = await _eventRepository.GetEventByIdAsync(booking.EventId);
             if (eventDetails != null)
             {
                 eventDetails.AvailableSeats += booking.NumberOfTickets;
                 await _eventRepository.UpdateEventAsync(eventDetails);
-
             }
 
             var result = await _bookingRepository.DeleteBookingAsync(id);
-            return result ? Ok("Booking Canceled Successfully") : BadRequest("Failed to cancel booking");
+            return result ? Ok("Booking canceled successfully") : BadRequest("Failed to cancel booking");
         }
 
-        [HttpGet("{userName}")]
+        [HttpGet("UserBookings/{userName}")]
         public async Task<IActionResult> GetBookingForUser(string userName)
         {
             var bookings = await _bookingRepository.GetBookingForUserAsync(userName);
             return Ok(bookings);
-
         }
 
-        [HttpGet]
+        [HttpGet("GetAll")]
         public async Task<IActionResult> GetAllBooking()
         {
-            var booking = await _bookingRepository.GetAllBookingAsync();
-            return Ok(booking);
+            var bookings = await _bookingRepository.GetAllBookingAsync();
+            return Ok(bookings);
         }
-
-
     }
 }
