@@ -1,6 +1,6 @@
 ﻿namespace TicketReservationAPI.Data
 {
-    public class TicketDbContext
+    public class TicketDbContext:DbConte
     {
     }
 }
