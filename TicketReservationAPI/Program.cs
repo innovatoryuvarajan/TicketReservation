@@ -1,4 +1,7 @@
 
+using Microsoft.EntityFrameworkCore;
+using TicketReservationAPI.Data;
+
 namespace TicketReservationAPI
 {
     public class Program
@@ -11,8 +14,21 @@ namespace TicketReservationAPI
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+
+            builder.Services.AddDbContext<TicketDbContext>(option =>
+            option.UseSqlServer(builder.Configuration.GetConnectionString("Ticketconnection")));
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            builder.Services.AddCors(options=>
+            {
+                options.AddPolicy("AllowAnyOrigin",
+                    builder => builder
+                    .AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader());
+            });
 
             var app = builder.Build();
 
@@ -24,7 +40,7 @@ namespace TicketReservationAPI
             }
 
             app.UseHttpsRedirection();
-
+            app.UseCors("AllowAnyOrigin");
             app.UseAuthorization();
 
 
