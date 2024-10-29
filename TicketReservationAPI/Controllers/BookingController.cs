@@ -21,17 +21,11 @@ namespace TicketReservationAPI.Controllers
         [HttpPost("Book")]
         public async Task<IActionResult> BookTickets([FromBody] Booking booking)
         {
-            var eventDetails = await _eventRepository.GetEventByIdAsync(booking.EventId);
-            if (eventDetails == null || eventDetails.AvailableSeats < booking.NumberOfTickets)
-                return BadRequest("Not enough seats available or event not found");
-
-            eventDetails.AvailableSeats -= booking.NumberOfTickets;
             var bookingSuccess = await _bookingRepository.AddBookingAsync(booking);
-            var eventUpdateSuccess = await _eventRepository.UpdateEventAsync(eventDetails);
+            if (!bookingSuccess)
+                return BadRequest("Booking failed. Check event availability.");
 
-            Console.WriteLine(bookingSuccess+"==>"+ eventUpdateSuccess);
-            Console.WriteLine(eventDetails);
-            return bookingSuccess && eventUpdateSuccess ? Ok("Booking successful") : BadRequest("Failed to book tickets");
+            return Ok("Tickets booked successfully.");
         }
 
         [HttpDelete("Cancel/{id}")]

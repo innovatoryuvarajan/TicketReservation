@@ -9,7 +9,7 @@ namespace TicketReservationAPI.Data
         {
         }
 
-        public DbSet<Event> Events { get; set; }
-        public DbSet<Booking> Bookings { get; set; }
+        public virtual DbSet<Event> Events { get; set; }
+        public virtual DbSet<Booking> Bookings { get; set; }
     }
 }
