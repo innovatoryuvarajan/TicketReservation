@@ -35,13 +35,18 @@ namespace TicketReservationAPI.Tests.Repository
         [Test]
         public async Task AddEventAsync_ValidEvent_ReturnsTrue()
         {
-            // Arrange
-            var eventDetails = new Event { Id = 1, EventName = "Concert", AvailableSeats = 100 };
+            var eventDetails = new Event
+            {
+                Id = 1,
+                EventName = "Concert",
+                EventDate = DateTime.UtcNow,
+                Venue = "Main Hall",
+                TotalSeats = 200,
+                AvailableSeats = 200
+            };
 
-            // Act
             var result = await _repository.AddEventAsync(eventDetails);
 
-            // Assert
             Assert.IsTrue(result);
             var addedEvent = await _context.Events.FindAsync(1);
             Assert.IsNotNull(addedEvent);
@@ -51,22 +56,26 @@ namespace TicketReservationAPI.Tests.Repository
         [Test]
         public void AddEventAsync_NullEvent_ThrowsArgumentNullException()
         {
-            // Act & Assert
             Assert.ThrowsAsync<ArgumentNullException>(async () => await _repository.AddEventAsync(null));
         }
 
         [Test]
         public async Task DeleteEventAsync_EventExists_ReturnsTrue()
         {
-            // Arrange
-            var eventDetails = new Event { Id = 1, EventName = "Concert" };
+            var eventDetails = new Event
+            {
+                Id = 1,
+                EventName = "Concert",
+                EventDate = DateTime.UtcNow,
+                Venue = "Main Hall",
+                TotalSeats = 200,
+                AvailableSeats = 200
+            };
             _context.Events.Add(eventDetails);
             await _context.SaveChangesAsync();
 
-            // Act
             var result = await _repository.DeleteEventAsync(1);
 
-            // Assert
             Assert.IsTrue(result);
             Assert.IsNull(await _context.Events.FindAsync(1));
         }
@@ -74,29 +83,24 @@ namespace TicketReservationAPI.Tests.Repository
         [Test]
         public async Task DeleteEventAsync_EventDoesNotExist_ReturnsFalse()
         {
-            // Act
             var result = await _repository.DeleteEventAsync(1);
 
-            // Assert
             Assert.IsFalse(result);
         }
 
         [Test]
         public async Task GetAllEventsAsync_ReturnsEventList()
         {
-            // Arrange
             var events = new List<Event>
             {
-                new Event { Id = 1, EventName = "Concert" },
-                new Event { Id = 2, EventName = "Conference" }
+                new Event { Id = 1, EventName = "Concert", EventDate = DateTime.UtcNow, Venue = "Main Hall", TotalSeats = 200, AvailableSeats = 200 },
+                new Event { Id = 2, EventName = "Conference", EventDate = DateTime.UtcNow.AddDays(1), Venue = "Conference Room", TotalSeats = 100, AvailableSeats = 100 }
             };
             await _context.Events.AddRangeAsync(events);
             await _context.SaveChangesAsync();
 
-            // Act
             var result = await _repository.GetAllEventsAsync();
 
-            // Assert
             Assert.AreEqual(2, result.Count());
             Assert.AreEqual("Concert", result.First().EventName);
         }
@@ -104,15 +108,20 @@ namespace TicketReservationAPI.Tests.Repository
         [Test]
         public async Task GetEventByIdAsync_EventExists_ReturnsEvent()
         {
-            // Arrange
-            var eventDetails = new Event { Id = 1, EventName = "Concert" };
+            var eventDetails = new Event
+            {
+                Id = 1,
+                EventName = "Concert",
+                EventDate = DateTime.UtcNow,
+                Venue = "Main Hall",
+                TotalSeats = 200,
+                AvailableSeats = 200
+            };
             _context.Events.Add(eventDetails);
             await _context.SaveChangesAsync();
 
-            // Act
             var result = await _repository.GetEventByIdAsync(1);
 
-            // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual("Concert", result.EventName);
         }
@@ -120,27 +129,30 @@ namespace TicketReservationAPI.Tests.Repository
         [Test]
         public async Task GetEventByIdAsync_EventDoesNotExist_ReturnsNull()
         {
-            // Act
             var result = await _repository.GetEventByIdAsync(1);
 
-            // Assert
             Assert.IsNull(result);
         }
 
         [Test]
         public async Task UpdateEventAsync_EventExists_ReturnsTrue()
         {
-            // Arrange
-            var eventDetails = new Event { Id = 1, EventName = "Concert", AvailableSeats = 50 };
+            var eventDetails = new Event
+            {
+                Id = 1,
+                EventName = "Concert",
+                EventDate = DateTime.UtcNow,
+                Venue = "Main Hall",
+                TotalSeats = 200,
+                AvailableSeats = 100
+            };
             _context.Events.Add(eventDetails);
             await _context.SaveChangesAsync();
 
-            // Act
             eventDetails.EventName = "Updated Concert";
             eventDetails.AvailableSeats = 80;
             var result = await _repository.UpdateEventAsync(eventDetails);
 
-            // Assert
             Assert.IsTrue(result);
             var updatedEvent = await _context.Events.FindAsync(1);
             Assert.AreEqual("Updated Concert", updatedEvent.EventName);
@@ -150,18 +162,15 @@ namespace TicketReservationAPI.Tests.Repository
         [Test]
         public async Task UpdateEventAsync_EventDoesNotExist_ReturnsFalse()
         {
-            // Act
-            var eventDetails = new Event { Id = 1, EventName = "Nonexistent Event" };
+            var eventDetails = new Event { Id = 1, EventName = "Nonexistent Event", EventDate = DateTime.UtcNow, Venue = "Hall", TotalSeats = 50, AvailableSeats = 50 };
             var result = await _repository.UpdateEventAsync(eventDetails);
 
-            // Assert
             Assert.IsFalse(result);
         }
 
         [Test]
         public void UpdateEventAsync_NullEvent_ThrowsArgumentNullException()
         {
-            // Act & Assert
             Assert.ThrowsAsync<ArgumentNullException>(async () => await _repository.UpdateEventAsync(null));
         }
     }
